@@ -1,14 +1,17 @@
 {
-  "name": "memory-bank-mcp-server",
+  "name": "@telagod/memory-bank-mcp-server",
   "version": "0.1.0",
-  "description": "memory-bank for roocode",
-  "private": true,
+  "description": "Memory Bank MCP Server for RooCode, runnable via npx.",
   "type": "module",
+  "main": "build/index.js",
   "bin": {
-    "memory-bank-mcp-server": "./build/index.js"
+    "memory-bank-mcp-server": "bin/cli.js"
   },
   "files": [
-    "build"
+    "build/",
+    "bin/",
+    "README.md",
+    "package.json"
   ],
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
@@ -25,5 +28,8 @@
   "devDependencies": {
     "@types/node": "^20.11.24",
     "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

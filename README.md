@@ -9,23 +9,9 @@
 *   **模块化:** 将记忆库管理逻辑封装为独立的 MCP 服务。
 *   **标准化接口:** 提供一组 MCP 工具来与记忆库交互。
 
-## 安装
+## 使用 npx 运行 (推荐)
 
-1.  **克隆/下载:** 获取此服务器的代码。
-2.  **安装依赖:** 在服务器的根目录（包含 `package.json` 的目录）运行：
-    ```bash
-    npm install
-    ```
-
-## 构建
-
-要将 TypeScript 代码编译为 JavaScript，请运行：
-
-```bash
-npm run build
-```
-
-编译后的输出位于 `build/` 目录下。
+此服务器已发布到 npm，可以通过 `npx` 直接运行，无需手动克隆、安装或构建。
 
 ## 运行
 
@@ -38,6 +24,42 @@ node build/index.js
 ```
 
 服务器将在标准输入/输出 (stdio) 上监听 MCP 消息。
+
+## 集成指南 (使用 npx)
+
+您可以将此 Memory Bank MCP 服务器集成到支持 MCP 的应用程序（如 RooCode）中。推荐使用 `npx` 来运行服务器。
+
+### RooCode 配置示例
+
+1.  打开 RooCode 的 `mcp_settings.json` 配置文件。
+2.  在 `servers` 数组中添加一个新的服务器配置条目，如下所示：
+
+    ```json
+    {
+      "name": "Memory Bank Server (npx)", // 您可以自定义名称
+      "command": "npx",
+      "args": [
+        "-y", // 确保总是使用最新版本或已安装版本
+        "@your-npm-username/memory-bank-mcp-server" // 将 @your-npm-username 替换为实际的 npm 用户名或组织名
+        // 如果服务器支持，可以在这里添加其他参数，例如 --config path/to/config.json
+      ],
+      "type": "stdio", // 或根据需要设置为 "sse"
+      "alwaysAllow": [ // 列出您希望允许此服务器使用的工具
+        "initialize_memory_bank",
+        "get_memory_bank_status",
+        "read_memory_bank_section",
+        "update_memory_bank_entry"
+      ],
+      "disabled": false // 设置为 false 以启用服务器
+    }
+    ```
+3.  **重要:** 将 `"@your-npm-username/memory-bank-mcp-server"` 中的 `@your-npm-username` 替换为发布此包时使用的实际 npm 用户名或组织名。
+4.  保存 `mcp_settings.json` 文件。
+5.  重启 RooCode 以加载新的 MCP 服务器。
+
+### 其他 MCP 客户端
+
+对于其他支持 MCP 的客户端，请参考其文档，了解如何配置通过命令行启动的 stdio 或 SSE 类型的 MCP 服务器。通常，您需要提供 `npx` 命令和相应的参数，如上例所示。
 
 ## MCP 工具
 
