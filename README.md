@@ -1,100 +1,137 @@
 # Memory Bank MCP Server
 
-这是一个 Model Context Protocol (MCP) 服务器，用于管理项目特定的“记忆库”数据。它使用 SQLite 数据库来存储和检索与项目相关的上下文信息，如产品背景、决策日志、进度更新等。
+This is a Model Context Protocol (MCP) server designed to manage project-specific "memory bank" data. It utilizes an SQLite database to store and retrieve contextual information related to a project, such as product background, decision logs, progress updates, etc.
 
-## 功能
+## Features
 
-*   **基于项目:** 为每个指定的项目路径维护一个独立的记忆库。
-*   **SQLite 存储:** 在项目目录下的 `memory-bank/memory.db` 文件中存储数据，提供结构化和高效的访问。
-*   **模块化:** 将记忆库管理逻辑封装为独立的 MCP 服务。
-*   **标准化接口:** 提供一组 MCP 工具来与记忆库交互。
+*   **Project-Based:** Maintains a separate memory bank for each specified project path.
+*   **SQLite Storage:** Stores data in a `memory-bank/memory.db` file within the project directory, providing structured and efficient access.
+*   **Modular:** Encapsulates memory bank management logic into an independent MCP service.
+*   **Standardized Interface:** Provides a set of MCP tools for interacting with the memory bank.
 
-## 使用 npx 运行 (推荐)
+## Running with npx (Recommended)
 
-此服务器已发布到 npm，可以通过 `npx` 直接运行，无需手动克隆、安装或构建。
+This server is published to npm and can be run directly using `npx` without manual cloning, installation, or building.
 
-## 运行
+## Running
 
-此服务器设计为通过支持 MCP 的宿主应用程序（如 Roo Code）自动启动和管理。宿主应用程序会根据其配置（例如 `mcp_settings.json`）来运行此服务器。
+This server is designed to be automatically started and managed by an MCP-enabled host application (like Roo Code). The host application will run this server based on its configuration (e.g., `mcp_settings.json`).
 
-如果需要手动测试，可以在构建后直接运行编译后的文件：
+For manual testing, you can run the compiled file directly after building:
 
 ```bash
 node build/index.js
 ```
 
-服务器将在标准输入/输出 (stdio) 上监听 MCP 消息。
+The server will listen for MCP messages on standard input/output (stdio).
 
-## 集成指南 (使用 npx)
+## Integration Guide (Using npx)
 
-您可以将此 Memory Bank MCP 服务器集成到支持 MCP 的应用程序（如 RooCode）中。推荐使用 `npx` 来运行服务器。
+You can integrate this Memory Bank MCP Server into MCP-enabled applications (like RooCode). Using `npx` to run the server is recommended.
 
-### RooCode 配置示例
+### RooCode Configuration Example
 
-1.  打开 RooCode 的 `mcp_settings.json` 配置文件。
-2.  在 `servers` 数组中添加一个新的服务器配置条目，如下所示：
+1.  Open RooCode's `mcp_settings.json` configuration file.
+2.  Add a new server configuration entry to the `servers` array as shown below:
 
     ```json
     {
-      "name": "Memory Bank Server (npx)", // 您可以自定义名称
+      "name": "Memory Bank Server (npx)", // You can customize the name
       "command": "npx",
       "args": [
-        "-y", // 确保总是使用最新版本或已安装版本
-        "@your-npm-username/memory-bank-mcp-server" // 将 @your-npm-username 替换为实际的 npm 用户名或组织名
-        // 如果服务器支持，可以在这里添加其他参数，例如 --config path/to/config.json
+        "-y", // Ensures always using the latest or installed version
+        "@your-npm-username/memory-bank-mcp-server" // Replace @your-npm-username with the actual npm username or organization name
+        // If the server supports it, add other arguments here, e.g., --config path/to/config.json
       ],
-      "type": "stdio", // 或根据需要设置为 "sse"
-      "alwaysAllow": [ // 列出您希望允许此服务器使用的工具
+      "type": "stdio", // Or set to "sse" as needed
+      "alwaysAllow": [ // List the tools you want to allow this server to use
         "initialize_memory_bank",
         "get_memory_bank_status",
         "read_memory_bank_section",
         "update_memory_bank_entry"
       ],
-      "disabled": false // 设置为 false 以启用服务器
+      "disabled": false // Set to false to enable the server
     }
     ```
-3.  **重要:** 将 `"@your-npm-username/memory-bank-mcp-server"` 中的 `@your-npm-username` 替换为发布此包时使用的实际 npm 用户名或组织名。
-4.  保存 `mcp_settings.json` 文件。
-5.  重启 RooCode 以加载新的 MCP 服务器。
+3.  **Important:** Replace `@your-npm-username` in `"@your-npm-username/memory-bank-mcp-server"` with the actual npm username or organization name used when publishing this package.
+4.  Save the `mcp_settings.json` file.
+5.  Restart RooCode to load the new MCP server.
 
-### 其他 MCP 客户端
+### Other MCP Clients
 
-对于其他支持 MCP 的客户端，请参考其文档，了解如何配置通过命令行启动的 stdio 或 SSE 类型的 MCP 服务器。通常，您需要提供 `npx` 命令和相应的参数，如上例所示。
+For other MCP-enabled clients, refer to their documentation on how to configure stdio or SSE type MCP servers launched via the command line. Typically, you will need to provide the `npx` command and corresponding arguments as shown in the example above.
 
-## MCP 工具
+## MCP Tools
 
-该服务器提供以下 MCP 工具：
+The server provides the following MCP tools:
 
 1.  **`initialize_memory_bank`**
-    *   **描述:** 初始化指定项目路径的记忆库存储。如果 `memory-bank/` 目录或 `memory.db` 文件不存在，则会创建它们。
-    *   **输入:**
-        *   `project_path` (string, required): 项目的绝对路径。
-    *   **输出:** 包含状态消息和数据库路径的对象。
+    *   **Description:** Initializes the memory bank storage for the specified project path. Creates the `memory-bank/` directory and `memory.db` file if they do not exist.
+    *   **Input:**
+        *   `project_path` (string, required): The absolute path to the project.
+    *   **Output:** An object containing a status message and the database path.
 
 2.  **`get_memory_bank_status`**
-    *   **描述:** 检查指定项目路径的记忆库状态（是否存在数据库文件）。
-    *   **输入:**
-        *   `project_path` (string, required): 项目的绝对路径。
-    *   **输出:** 包含 `exists` (boolean), `db_path` (string) 和 `message` (string) 的对象。
+    *   **Description:** Checks the status of the memory bank for the specified project path (whether the database file exists).
+    *   **Input:**
+        *   `project_path` (string, required): The absolute path to the project.
+    *   **Output:** An object containing `exists` (boolean), `db_path` (string), and `message` (string).
 
 3.  **`read_memory_bank_section`**
-    *   **描述:** 从记忆库的特定部分读取条目。
-    *   **输入:**
-        *   `project_path` (string, required): 项目的绝对路径。
-        *   `section` (string, required): 要读取的部分 (例如, `product_context`, `decisions`, `progress`, `focus`, `system_patterns`)。
-        *   `limit` (number, optional, default: 10): 返回的最大条目数。
-        *   `offset` (number, optional, default: 0): 用于分页的偏移量。
-    *   **输出:** 一个包含该部分记录的对象数组。
+    *   **Description:** Reads entries from a specific section of the memory bank.
+    *   **Input:**
+        *   `project_path` (string, required): The absolute path to the project.
+        *   `section` (string, required): The section to read from (e.g., `product_context`, `decisions`, `progress`, `focus`, `system_patterns`).
+        *   `limit` (number, optional, default: 10): Maximum number of entries to return.
+        *   `offset` (number, optional, default: 0): Offset for pagination.
+    *   **Output:** An array of objects representing the records from that section.
 
 4.  **`update_memory_bank_entry`**
-    *   **描述:** 在记忆库的特定部分添加一个新条目。
-    *   **输入:**
-        *   `project_path` (string, required): 项目的绝对路径。
-        *   `section` (string, required): 要更新的部分 (同上)。
-        *   `entry_data` (object, required): 新条目的数据。键应与该部分数据库表的列名匹配（`id` 和 `timestamp` 除外）。
+    *   **Description:** Adds a new entry to a specific section of the memory bank.
+    *   **Input:**
+        *   `project_path` (string, required): The absolute path to the project.
+        *   `section` (string, required): The section to update (as above).
+        *   `entry_data` (object, required): Data for the new entry. Keys should match the column names of the section's database table (excluding `id` and `timestamp`).
             *   `product_context`: `{ "content": "..." }`
             *   `decisions`: `{ "reason": "...", "outcome": "..." }`
             *   `progress`: `{ "update_summary": "...", "status": "..." }`
             *   `focus`: `{ "area": "...", "details": "..." }`
             *   `system_patterns`: `{ "pattern_name": "...", "description": "..." }`
-    *   **输出:** 包含状态消息和新插入条目 ID 的对象。
+    *   **Output:** An object containing a status message and the ID of the newly inserted entry.
+
+## How It Works
+
+The following diagram illustrates the basic workflow of the Memory Bank MCP Server:
+
+```mermaid
+graph TD
+    Client[Client (e.g., RooCode)] -->|1. Send tool call request (e.g., read_memory_bank_section)| MCPServer(Memory Bank MCP Server)
+    MCPServer -->|2. Parse request, call corresponding tool| Tools(MCP Tool Implementation)
+    Tools -->|3. Execute database operation (read/write)| SQLiteDB[SQLite Database (.memory_bank/memory_bank.db)]
+    SQLiteDB -->|4. Return database result| Tools
+    Tools -->|5. Process result| MCPServer
+    MCPServer -->|6. Return response to client| Client
+```
+
+1.  **Client Request:** An MCP-enabled client (like RooCode) sends a tool call request to the Memory Bank server, specifying the action to perform (e.g., `read_memory_bank_section`) and necessary parameters (e.g., `project_path`, `section`).
+2.  **Server Processing:** The MCP server receives the request, parses it, and calls the corresponding internal tool function to handle the request.
+3.  **Database Interaction:** The tool function interacts with the `.memory_bank/memory_bank.db` SQLite database in the project directory based on the request type (querying or modifying data).
+4.  **Return Result:** After the database operation is complete, the result is returned to the tool function.
+5.  **Response Preparation:** The tool function processes the database result and prepares the response data to be sent back to the client.
+6.  **Send Response:** The MCP server sends the response containing the result or status information back to the client.
+
+### Database Structure
+
+The core of the memory bank consists of the following SQLite tables, which collectively store key project information:
+
+*   **`product_context`**: Stores high-level background information about the product or project, goals, scope, etc. This helps understand the "why" of the project.
+*   **`decisions`**: Records important technical choices, architectural decisions, product direction adjustments, etc. Includes the reasons for decisions, options considered, and the final outcome, providing a basis for future review.
+*   **`progress`**: Tracks key progress during development, status updates, completed tasks, or milestones. This helps understand "how things are going" with the project.
+*   **`focus`**: Defines the current or near-term development focus, key issues to be resolved, or areas requiring special attention. This helps the team stay aligned.
+*   **`system_patterns`**: Records reusable patterns, common solutions, or important design principles identified in the codebase or system architecture. This aids knowledge retention and code consistency.
+
+These tables work together to form a dynamic project "memory bank," capturing the project's evolution and key knowledge points.
+
+## Acknowledgements
+
+Parts of the design and inspiration for this project come from the [RooFlow](https://github.com/GreatScottyMac/RooFlow) project. Thanks for the ideas provided for the MCP ecosystem and AI-assisted development workflows.
