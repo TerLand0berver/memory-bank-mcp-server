@@ -105,20 +105,36 @@ The following diagram illustrates the basic workflow of the Memory Bank MCP Serv
 
 ```mermaid
 graph TD
-    Client["Client (e.g., RooCode)"] -->|1. Send tool call request (e.g., read_memory_bank_section)| MCPServer(Memory Bank MCP Server)
-    MCPServer -->|2. Parse request, call corresponding tool| Tools(MCP Tool Implementation)
-    Tools -->|3. Execute database operation (read/write)| SQLiteDB[SQLite Database (.memory_bank/memory_bank.db)]
-    SQLiteDB -->|4. Return database result| Tools
-    Tools -->|5. Process result| MCPServer
-    MCPServer -->|6. Return response to client| Client
+    Client["Client"] -- "Tool Call\n(e.g., update_entry, section='decisions')" --> MCPServer["Memory Bank MCP Server"]
+    MCPServer -- "Parse Request" --> Router{"Router/Logic"}
+
+    subgraph "Database Interaction"
+        direction LR
+        Router -- "section='product_context'?" --> Table_PC["product_context Table"]
+        Router -- "section='decisions'?" --> Table_DEC["decisions Table"]
+        Router -- "section='progress'?" --> Table_PROG["progress Table"]
+        Router -- "section='focus'?" --> Table_FOC["focus Table"]
+        Router -- "section='system_patterns'?" --> Table_SP["system_patterns Table"]
+
+        Table_PC -- "Read/Write Ops" --> SQLiteDB["SQLite DB"]
+        Table_DEC -- "Read/Write Ops" --> SQLiteDB
+        Table_PROG -- "Read/Write Ops" --> SQLiteDB
+        Table_FOC -- "Read/Write Ops" --> SQLiteDB
+        Table_SP -- "Read/Write Ops" --> SQLiteDB
+    end
+
+    SQLiteDB -- "Operation Result" --> MCPServer
+    MCPServer -- "Format & Send Response" --> Client
 ```
 
-1.  **Client Request:** An MCP-enabled client (like RooCode) sends a tool call request to the Memory Bank server, specifying the action to perform (e.g., `read_memory_bank_section`) and necessary parameters (e.g., `project_path`, `section`).
-2.  **Server Processing:** The MCP server receives the request, parses it, and calls the corresponding internal tool function to handle the request.
-3.  **Database Interaction:** The tool function interacts with the `.memory_bank/memory_bank.db` SQLite database in the project directory based on the request type (querying or modifying data).
-4.  **Return Result:** After the database operation is complete, the result is returned to the tool function.
-5.  **Response Preparation:** The tool function processes the database result and prepares the response data to be sent back to the client.
-6.  **Send Response:** The MCP server sends the response containing the result or status information back to the client.
+1.  **Client Request:** The client (e.g., RooCode) initiates a tool call request to the Memory Bank MCP Server, typically including a `section` parameter (e.g., `update_memory_bank_entry` with `section='decisions'`).
+2.  **Server Parsing:** The server core receives and parses the request.
+3.  **Routing Logic:** The server's internal routing logic determines the target database table based on the `section` parameter in the request.
+4.  **Table Interaction:** The request is routed to the appropriate table handling logic (`product_context`, `decisions`, `progress`, `focus`, or `system_patterns`).
+5.  **Database Operation:** Read or write operations are performed on the selected table within the SQLite database (`memory-bank/memory.db`).
+6.  **Return Results (DB):** The SQLite database returns the result of the operation (e.g., queried data or confirmation of successful insertion).
+7.  **Process & Format:** The server core processes the results returned from the database and formats them into an MCP response.
+8.  **Send Response:** The server sends the final response back to the client.
 
 ### Database Structure
 

@@ -105,20 +105,36 @@ node build/index.js
 
 ```mermaid
 graph TD
-    Client["客户端 (如 RooCode)"] -->|1. 发送工具调用请求 (如 read_memory_bank_section)| MCPServer(Memory Bank MCP Server)
-    MCPServer -->|2. 解析请求, 调用相应工具| Tools(MCP 工具实现)
-    Tools -->|3. 执行数据库操作 (读/写)| SQLiteDB[SQLite 数据库 (.memory_bank/memory_bank.db)]
-    SQLiteDB -->|4. 返回数据库结果| Tools
-    Tools -->|5. 处理结果| MCPServer
-    MCPServer -->|6. 返回响应给客户端| Client
+    Client["客户端 (Client)"] -- "工具调用 (Tool Call)\n(e.g., update_entry, section='decisions')" --> MCPServer["内存银行 MCP 服务器 (Memory Bank MCP Server)"]
+    MCPServer -- "解析请求 (Parse Request)" --> Router{"路由/逻辑 (Router/Logic)"}
+
+    subgraph "数据库交互 (Database Interaction)"
+        direction LR
+        Router -- "section='product_context'?" --> Table_PC["product_context 表 (Table)"]
+        Router -- "section='decisions'?" --> Table_DEC["decisions 表 (Table)"]
+        Router -- "section='progress'?" --> Table_PROG["progress 表 (Table)"]
+        Router -- "section='focus'?" --> Table_FOC["focus 表 (Table)"]
+        Router -- "section='system_patterns'?" --> Table_SP["system_patterns 表 (Table)"]
+
+        Table_PC -- "读/写操作 (Read/Write Ops)" --> SQLiteDB["SQLite DB"]
+        Table_DEC -- "读/写操作 (Read/Write Ops)" --> SQLiteDB
+        Table_PROG -- "读/写操作 (Read/Write Ops)" --> SQLiteDB
+        Table_FOC -- "读/写操作 (Read/Write Ops)" --> SQLiteDB
+        Table_SP -- "读/写操作 (Read/Write Ops)" --> SQLiteDB
+    end
+
+    SQLiteDB -- "操作结果 (Operation Result)" --> MCPServer
+    MCPServer -- "格式化并发送响应 (Format & Send Response)" --> Client
 ```
 
-1.  **客户端请求:** 支持 MCP 的客户端（如 RooCode）向 Memory Bank 服务器发送一个工具调用请求，指定要执行的操作（如 `read_memory_bank_section`）和必要的参数（如 `project_path`, `section`）。
-2.  **服务器处理:** MCP 服务器接收请求，解析它，并调用内部对应的工具函数来处理该请求。
-3.  **数据库交互:** 工具函数根据请求类型与项目目录下的 `.memory_bank/memory_bank.db` SQLite 数据库进行交互（查询或修改数据）。
-4.  **返回结果:** 数据库操作完成后，结果返回给工具函数。
-5.  **响应准备:** 工具函数处理数据库结果，并准备要发送回客户端的响应数据。
-6.  **发送响应:** MCP 服务器将包含结果或状态信息的响应发送回客户端。
+1.  **客户端请求:** 客户端（如 RooCode）向内存银行 MCP 服务器发起工具调用请求，通常包含 `section` 参数（例如，`update_memory_bank_entry` with `section='decisions'`）。
+2.  **服务器解析:** 服务器核心接收并解析请求。
+3.  **路由逻辑:** 服务器内部的路由逻辑根据请求中的 `section` 参数确定目标数据库表。
+4.  **表交互:** 请求被路由到相应的表处理逻辑（`product_context`, `decisions`, `progress`, `focus`, 或 `system_patterns`）。
+5.  **数据库操作:** 针对选定的表，在 SQLite 数据库 (`memory-bank/memory.db`) 中执行读或写操作。
+6.  **返回结果 (DB):** SQLite 数据库返回操作结果（例如，查询到的数据或插入成功的确认）。
+7.  **处理与格式化:** 服务器核心处理数据库返回的结果，并将其格式化为 MCP 响应。
+8.  **发送响应:** 服务器将最终的响应发送回客户端。
 
 ### 数据库结构 (Database Structure)
 
