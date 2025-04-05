@@ -105,7 +105,7 @@ The following diagram illustrates the basic workflow of the Memory Bank MCP Serv
 
 ```mermaid
 graph TD
-    Client[Client (e.g., RooCode)] -->|1. Send tool call request (e.g., read_memory_bank_section)| MCPServer(Memory Bank MCP Server)
+    Client["Client (e.g., RooCode)"] -->|1. Send tool call request (e.g., read_memory_bank_section)| MCPServer(Memory Bank MCP Server)
     MCPServer -->|2. Parse request, call corresponding tool| Tools(MCP Tool Implementation)
     Tools -->|3. Execute database operation (read/write)| SQLiteDB[SQLite Database (.memory_bank/memory_bank.db)]
     SQLiteDB -->|4. Return database result| Tools

@@ -105,7 +105,7 @@ node build/index.js
 
 ```mermaid
 graph TD
-    Client[客户端 (如 RooCode)] -->|1. 发送工具调用请求 (如 read_memory_bank_section)| MCPServer(Memory Bank MCP Server)
+    Client["客户端 (如 RooCode)"] -->|1. 发送工具调用请求 (如 read_memory_bank_section)| MCPServer(Memory Bank MCP Server)
     MCPServer -->|2. 解析请求, 调用相应工具| Tools(MCP 工具实现)
     Tools -->|3. 执行数据库操作 (读/写)| SQLiteDB[SQLite 数据库 (.memory_bank/memory_bank.db)]
     SQLiteDB -->|4. 返回数据库结果| Tools
