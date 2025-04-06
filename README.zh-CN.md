@@ -13,17 +13,37 @@
 
 此服务器已发布到 npm，可以通过 `npx` 直接运行，无需手动克隆、安装或构建。
 
-## 运行
+## 运行服务器
 
-此服务器设计为通过支持 MCP 的宿主应用程序（如 Roo Code）自动启动和管理。宿主应用程序会根据其配置（例如 `mcp_settings.json`）来运行此服务器。
-
-如果需要手动测试，可以在构建后直接运行编译后的文件：
+运行此服务器的主要方式是使用 `npx`，它会直接从 npm 仓库执行包：
 
 ```bash
-node build/index.js
+npx @telagod/memory-bank-mcp-server
 ```
 
-服务器将在标准输入/输出 (stdio) 上监听 MCP 消息。
+**Node.js 版本要求:**
+
+*   您需要安装 **Node.js 18.0.0 或更高版本 (`>=18.0.0`)**。
+
+**特定平台的注意事项:**
+
+*   **Windows:** 如果您已正确安装 Node.js v18+ 并将其添加到了系统的 PATH 环境变量中，那么 `npx` 命令应该可以直接在命令提示符 (Command Prompt)、PowerShell 或 Windows Terminal 中工作。
+
+*   **macOS / Linux / WSL (适用于 Linux 的 Windows 子系统):**
+    *   **检查您的 Node.js 版本:** 运行 `node -v`。
+    *   **潜在问题:** 系统包管理器（如 Ubuntu/Debian 上的 `apt`）提供的默认 Node.js 版本可能已过时（例如 v12.x）。使用旧版本的 Node.js 运行 `npx` 很可能会失败。
+    *   **推荐解决方案:** 使用 Node 版本管理器，如 **NVM (Node Version Manager)** 或 **NodeSource** 来安装和管理 Node.js 版本。系统软件仓库通常落后于最新的 Node.js 版本。
+    *   **使用 NVM (示例):**
+        1.  安装 NVM（请检查 [NVM 官方仓库](https://github.com/nvm-sh/nvm) 以获取最新命令）：
+            ```bash
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+            ```
+        2.  重启您的终端或运行 NVM 安装程序提示的命令。
+        3.  安装 Node.js v18+ 版本：`nvm install 18` （或特定版本，如 `nvm install 18.17.0`）
+        4.  使用已安装的版本：`nvm use 18`
+        5.  现在，`npx @telagod/memory-bank-mcp-server` 命令应该可以正常工作了。
+
+此服务器通常由 MCP 宿主应用程序（如 Roo Code）根据其配置（例如 `mcp_settings.json`）自动启动，但 `npx` 命令是其底层使用的方法。
 
 ## 集成指南 (使用 npx)
 
@@ -36,24 +56,24 @@ node build/index.js
 
     ```json
     {
-      "name": "Memory Bank Server (npx)", // 您可以自定义名称
+      "name": "Memory Bank Server (npx)",
       "command": "npx",
       "args": [
-        "-y", // 确保总是使用最新版本或已安装版本
-        "@your-npm-username/memory-bank-mcp-server" // 将 @your-npm-username 替换为实际的 npm 用户名或组织名
-        // 如果服务器支持，可以在这里添加其他参数，例如 --config path/to/config.json
+        "-y",
+        "@telagod/memory-bank-mcp-server"
       ],
-      "type": "stdio", // 或根据需要设置为 "sse"
-      "alwaysAllow": [ // 列出您希望允许此服务器使用的工具
+      "type": "stdio",
+      "alwaysAllow": [
         "initialize_memory_bank",
         "get_memory_bank_status",
         "read_memory_bank_section",
         "update_memory_bank_entry"
       ],
-      "disabled": false // 设置为 false 以启用服务器
+      "disabled": false
     }
     ```
-3.  **重要:** 将 `"@your-npm-username/memory-bank-mcp-server"` 中的 `@your-npm-username` 替换为发布此包时使用的实际 npm 用户名或组织名。
+3.  **重要:** 确保包名 `@telagod/memory-bank-mcp-server` 是正确的。如果您使用的是 fork 或不同版本，请相应更新名称。
+4.  **可选参数:** 如果服务器支持额外的命令行参数（例如配置文件路径），您可以将它们作为单独的字符串添加到包名之后的 `args` 数组中。
 4.  保存 `mcp_settings.json` 文件。
 5.  重启 RooCode 以加载新的 MCP 服务器。
 

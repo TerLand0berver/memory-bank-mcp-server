@@ -13,17 +13,37 @@ This is a Model Context Protocol (MCP) server designed to manage project-specifi
 
 This server is published to npm and can be run directly using `npx` without manual cloning, installation, or building.
 
-## Running
+## Running the Server
 
-This server is designed to be automatically started and managed by an MCP-enabled host application (like Roo Code). The host application will run this server based on its configuration (e.g., `mcp_settings.json`).
-
-For manual testing, you can run the compiled file directly after building:
+The primary way to run this server is using `npx`, which executes the package directly from the npm registry:
 
 ```bash
-node build/index.js
+npx @telagod/memory-bank-mcp-server
 ```
 
-The server will listen for MCP messages on standard input/output (stdio).
+**Node.js Version Requirement:**
+
+*   You need **Node.js version 18.0.0 or higher (`>=18.0.0`)** installed.
+
+**Platform-Specific Considerations:**
+
+*   **Windows:** If you have Node.js v18+ installed correctly and it's added to your system's PATH environment variable, the `npx` command should work directly in Command Prompt, PowerShell, or Windows Terminal.
+
+*   **macOS / Linux / WSL (Windows Subsystem for Linux):**
+    *   **Check your Node.js version:** Run `node -v`.
+    *   **Potential Issue:** The default Node.js version provided by system package managers (like `apt` on Ubuntu/Debian) might be outdated (e.g., v12.x). Running `npx` with an old Node.js version will likely fail.
+    *   **Recommended Solution:** Use a Node Version Manager like **NVM (Node Version Manager)** or **NodeSource** to install and manage Node.js versions. System repositories often lag behind the latest Node.js releases.
+    *   **Using NVM (Example):**
+        1.  Install NVM (check the [official NVM repository](https://github.com/nvm-sh/nvm) for the latest command):
+            ```bash
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+            ```
+        2.  Restart your terminal or run the commands indicated by the NVM installer.
+        3.  Install a Node.js v18+ version: `nvm install 18` (or a specific version like `nvm install 18.17.0`)
+        4.  Use the installed version: `nvm use 18`
+        5.  Now, the `npx @telagod/memory-bank-mcp-server` command should work correctly.
+
+This server is typically started automatically by an MCP host application (like Roo Code) based on its configuration (e.g., `mcp_settings.json`), but the `npx` command is the underlying method used.
 
 ## Integration Guide (Using npx)
 
@@ -36,24 +56,24 @@ You can integrate this Memory Bank MCP Server into MCP-enabled applications (lik
 
     ```json
     {
-      "name": "Memory Bank Server (npx)", // You can customize the name
+      "name": "Memory Bank Server (npx)",
       "command": "npx",
       "args": [
-        "-y", // Ensures always using the latest or installed version
-        "@your-npm-username/memory-bank-mcp-server" // Replace @your-npm-username with the actual npm username or organization name
-        // If the server supports it, add other arguments here, e.g., --config path/to/config.json
+        "-y",
+        "@telagod/memory-bank-mcp-server"
       ],
-      "type": "stdio", // Or set to "sse" as needed
-      "alwaysAllow": [ // List the tools you want to allow this server to use
+      "type": "stdio",
+      "alwaysAllow": [
         "initialize_memory_bank",
         "get_memory_bank_status",
         "read_memory_bank_section",
         "update_memory_bank_entry"
       ],
-      "disabled": false // Set to false to enable the server
+      "disabled": false
     }
     ```
-3.  **Important:** Replace `@your-npm-username` in `"@your-npm-username/memory-bank-mcp-server"` with the actual npm username or organization name used when publishing this package.
+3.  **Important:** Ensure the package name `@telagod/memory-bank-mcp-server` is correct. If you are using a fork or a different version, update the name accordingly.
+4.  **Optional Arguments:** If the server supports additional command-line arguments (like a configuration file path), you can add them as separate strings within the `args` array after the package name.
 4.  Save the `mcp_settings.json` file.
 5.  Restart RooCode to load the new MCP server.
 
