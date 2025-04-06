@@ -52,24 +52,28 @@ You can integrate this Memory Bank MCP Server into MCP-enabled applications (lik
 ### RooCode Configuration Example
 
 1.  Open RooCode's `mcp_settings.json` configuration file.
-2.  Add a new server configuration entry to the `servers` array as shown below:
+2.  Add a new server configuration entry to the `servers` object as shown below. The key (e.g., `"memory-bank-server"`) is the unique identifier you'll use to refer to this server:
 
     ```json
     {
-      "name": "Memory Bank Server (npx)",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@telagod/memory-bank-mcp-server"
-      ],
-      "type": "stdio",
-      "alwaysAllow": [
-        "initialize_memory_bank",
-        "get_memory_bank_status",
-        "read_memory_bank_section",
-        "update_memory_bank_entry"
-      ],
-      "disabled": false
+      "servers": {
+        "memory-bank-server": {
+          "name": "Memory Bank Server (npx)",
+          "command": "npx",
+          "args": [
+            "-y",
+            "@telagod/memory-bank-mcp-server"
+          ],
+          "type": "stdio",
+          "alwaysAllow": [
+            "initialize_memory_bank",
+            "get_memory_bank_status",
+            "read_memory_bank_section",
+            "update_memory_bank_entry"
+          ],
+          "disabled": false
+        }
+      }
     }
     ```
 3.  **Important:** Ensure the package name `@telagod/memory-bank-mcp-server` is correct. If you are using a fork or a different version, update the name accordingly.

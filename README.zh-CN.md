@@ -52,30 +52,36 @@ npx @telagod/memory-bank-mcp-server
 ### RooCode 配置示例
 
 1.  打开 RooCode 的 `mcp_settings.json` 配置文件。
-2.  在 `servers` 数组中添加一个新的服务器配置条目，如下所示：
+2.  在 `servers` 对象中添加一个新的键值对。键是您为服务器选择的唯一标识符（例如 `"memory-bank-server"`），值是服务器的配置对象。示例如下：
 
     ```json
     {
-      "name": "Memory Bank Server (npx)",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@telagod/memory-bank-mcp-server"
-      ],
-      "type": "stdio",
-      "alwaysAllow": [
-        "initialize_memory_bank",
-        "get_memory_bank_status",
-        "read_memory_bank_section",
-        "update_memory_bank_entry"
-      ],
-      "disabled": false
+      "servers": {
+        "memory-bank-server": {
+          "name": "Memory Bank Server (npx)",
+          "command": "npx",
+          "args": [
+            "-y",
+            "@telagod/memory-bank-mcp-server"
+          ],
+          "type": "stdio",
+          "alwaysAllow": [
+            "initialize_memory_bank",
+            "get_memory_bank_status",
+            "read_memory_bank_section",
+            "update_memory_bank_entry"
+          ],
+          "disabled": false
+        }
+      }
     }
     ```
-3.  **重要:** 确保包名 `@telagod/memory-bank-mcp-server` 是正确的。如果您使用的是 fork 或不同版本，请相应更新名称。
+3.  **重要:**
+    *   **键 (`"memory-bank-server"`) 是必需的**，并且必须是此服务器的唯一标识符。您可以使用任何描述性的名称。
+    *   确保包名 `@telagod/memory-bank-mcp-server` 是正确的。如果您使用的是 fork 或不同版本，请相应更新名称。
 4.  **可选参数:** 如果服务器支持额外的命令行参数（例如配置文件路径），您可以将它们作为单独的字符串添加到包名之后的 `args` 数组中。
-4.  保存 `mcp_settings.json` 文件。
-5.  重启 RooCode 以加载新的 MCP 服务器。
+5.  保存 `mcp_settings.json` 文件。
+6.  重启 RooCode 以加载新的 MCP 服务器。
 
 ### 其他 MCP 客户端
 
