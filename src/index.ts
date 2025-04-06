@@ -159,14 +159,18 @@ const tools = [
             },
             required: ['project_path', 'section'],
         },
-        outputSchema: { // Output is an array of records specific to the section
+        outputSchema: {
+            description: 'An array containing the requested entries. Each entry is returned as a JSON string representing the database row object.',
             type: 'array',
-            items: { type: 'object' }
+            items: {
+                type: 'string', // Technically returns strings which are JSON objects
+                description: 'A JSON string representing a single entry object from the specified section.'
+            }
         }
     },
     {
         name: 'update_memory_bank_entry',
-        description: 'Adds or updates an entry in a specific section of the memory bank.',
+        description: 'Adds or updates an entry in a specific section of the memory bank. The structure of `entry_data` depends on the chosen `section`.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -178,8 +182,7 @@ const tools = [
                 },
                 entry_data: {
                     type: 'object',
-                    description: 'The data for the new entry. Keys should match the columns of the section table (excluding id and timestamp).',
-                    // Example properties - adjust based on actual table columns
+                    description: 'The data for the new entry. Keys MUST match the columns allowed for the specified `section` (excluding id and timestamp).\nValid keys per section:\n- product_context: `content`\n- decisions: `reason`, `outcome`\n- progress: `update_summary`, `status`\n- focus: `area`, `details`\n- system_patterns: `pattern_name`, `description`',
                     properties: {
                         content: { type: 'string' }, // for product_context
                         reason: { type: 'string' }, // for decisions
